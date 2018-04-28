@@ -4,32 +4,55 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 def climate_plot():
-    # Ö±½Ó¶ÁÈ¡ NASA È«ÇòÎÂ¶È±ä»¯Êı¾İ¼¯
+    # ç›´æ¥è¯»å– NASA å…¨çƒæ¸©åº¦å˜åŒ–æ•°æ®é›†
     df_temperature = pd.read_excel('GlobalTemperature.xlsx')
 
-    # ´«ÈëÊÀ½çÒøĞĞÆøºò±ä»¯Êı¾İ¼¯
-    df_climate = pd.read_excel("ClimateChange.xlsx",sheetname='±íÃû')
+    # ä¼ å…¥ä¸–ç•Œé“¶è¡Œæ°”å€™å˜åŒ–æ•°æ®é›†
+    df_climate = pd.read_excel("ClimateChange.xlsx",sheetname='Data')
     
     df_co2 = df_climate[df_climate['Series code']=='EN.ATM.CO2E.KT']
     df_met = df_climate[df_climate['Series code']=='EN.ATM.METH.KT.CE']
     df_nox = df_climate[df_climate['Series code']=='EN.ATM.NOXE.KT.CE']
     df_ghgo = df_climate[df_climate['Series code']=='EN.ATM.GHGO.KT.CE']
     df_ghgr = df_climate[df_climate['Series code']=='EN.CLC.GHGR.MT.CE']
-    df_list = [df_co2,df_met,df_nox,df_ghgo,df_ghgr]
+    
+    #df_concat = pd.concat([df_co2,df_met,df_nox,df_ghgo,df_ghgr],axis=0)
+    
+    #print(df_concat)
+    df_dic = {'df_dic':df_co2,'df_met':df_met,'df_nox':df_nox,'df_ghgo':df_ghgo,'df_ghgr':df_ghgr}
+    # å½’ä¸€åŒ–åçš„æ•°æ®å­˜å…¥è¯¥å­—å…¸
+    df_handled_list = {}
+    
+    for df_k,df_v in df_dic.items():
+        # å»æ‰ä¸ç›¸å…³æ•°æ®åˆ—
+        df_v_drop = df_v.drop(['Country name','Series code','Series name','SCALE','Decimals'],axis=1).set_index('Country code').replace({'..':pd.np.NaN})
+        # æ•°æ®å¡«å……
+        df_v_fill = df_v_drop.fillna(method='ffill',axis=1).fillna(method='bfill',axis=1).dropna(how='all')
 
-    for df in df_list:
-        df_drop = df.drop([],axis=1)
-    # 1.²é¿´Êı¾İÎÄ¼ş½á¹¹
-    # 2.¶ÁÈ¡Êı¾İ²¢¶ÔÈ±Ê§Öµ´¦Àí
-    # 3.¶ÔÊ±¼äĞòÁĞÊı¾İ¼¯½øĞĞ´¦Àí²¢ÖØĞÂ²ÉÑù
-    # 4.°´¹æ¶¨Ñ¡ÔñÊı¾İ
-    # 5.°´¹æ¶¨»æÍ¼
+        #æ•°æ®å½’ä¸€åŒ–
+        df_v_nor = df_v_fill.apply(lambda x:round((x-x.min())/(x.max()-x.min()),3))
+        #print(df_v_nor.head())
 
-    # Îñ±ØÔÚ»æÍ¼Ç°ÉèÖÃ×ÓÍ¼¶ÔÏó£¬²¢·µ»Ø
-    fig = plt.subplot()
+        # å­˜å…¥å­—å…¸
+        df_handled_list[df_k] = df_v_nor
+    
+    print(df_handled_list)
+    
+    # 1.æŸ¥çœ‹æ•°æ®æ–‡ä»¶ç»“æ„
+    # 2.è¯»å–æ•°æ®å¹¶å¯¹ç¼ºå¤±å€¼å¤„ç†
+    # 3.å¯¹æ—¶é—´åºåˆ—æ•°æ®é›†è¿›è¡Œå¤„ç†å¹¶é‡æ–°é‡‡æ ·
+    #print(df_temperature.head(20))
+    #df_temperature['Date'] = pd.to_datetime(df_temperature['Date'])
+    #df_temperature
+    # 4.æŒ‰è§„å®šé€‰æ‹©æ•°æ®
+    # 5.æŒ‰è§„å®šç»˜å›¾
 
-    # ·µ»Ø fig ¶ÔÏó
-    return fig
+    # åŠ¡å¿…åœ¨ç»˜å›¾å‰è®¾ç½®å­å›¾å¯¹è±¡ï¼Œå¹¶è¿”å›
+    #fig = plt.subplot()
 
+    # è¿”å› fig å¯¹è±¡
+    #return fig
 
+if __name__=='__main__':
+    climate_plot()
 
